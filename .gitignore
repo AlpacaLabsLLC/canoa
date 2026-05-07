@@ -1,0 +1,22 @@
+# Per-user local state from running the MCP server. Should NEVER hit git —
+# carries the signed-in designer's user_id + email + sheet binding.
+.canoa/
+
+# macOS
+.DS_Store
+
+# Per-user editor / build dirs
+.idea/
+.vscode/
+
+# MCP server build dependencies — installed locally, never committed.
+mcp/node_modules/
+
+# We DO commit mcp/dist/ — it's the compiled MCP server that claude_desktop_config.json
+# and ~/.claude.json both spawn directly. Without it, a fresh clone can't run the MCP
+# until someone npm install + npm run build. Single-developer V1 ships dist; revisit
+# when team workflow + PR review become a thing.
+
+# Logs
+*.log
+npm-debug.log*
