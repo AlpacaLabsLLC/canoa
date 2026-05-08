@@ -1,6 +1,6 @@
 {
   "name": "canoa",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design. Spec out furniture and lighting, validate vendor URLs, parse dealer-quote PDFs, and keep a master schedule in sync — backed by a verified, manufacturer-cited catalog.",
   "author": {
     "name": "ALPA",
