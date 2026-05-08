@@ -1,0 +1,20 @@
+{
+  "name": "canoa",
+  "owner": {
+    "name": "ALPA",
+    "email": "f@alpacalabs.co"
+  },
+  "description": "Canoa — AI specifications manager for FF&E and interior design.",
+  "plugins": [
+    {
+      "name": "canoa",
+      "source": "./plugins/canoa",
+      "description": "AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design. Connects to a Google Sheet schedule, parses vendor URLs and dealer-quote PDFs into a verified catalog, and runs an FF&E specialist conversation backed by manufacturer-cited line cards.",
+      "category": "knowledge-work",
+      "tags": ["ffe", "interior-design", "furniture", "specifications", "design"],
+      "homepage": "https://canoa.supply",
+      "repository": "https://github.com/AlpacaLabsLLC/canoa",
+      "license": "MIT"
+    }
+  ]
+}

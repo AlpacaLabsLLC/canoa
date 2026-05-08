@@ -9,8 +9,8 @@
 .idea/
 .vscode/
 
-# MCP server build dependencies — installed locally, never committed.
-mcp/node_modules/
+# Node deps — installed locally, never committed (any path depth).
+**/node_modules/
 
 # We DO commit mcp/dist/ — it's the compiled MCP server that claude_desktop_config.json
 # and ~/.claude.json both spawn directly. Without it, a fresh clone can't run the MCP
