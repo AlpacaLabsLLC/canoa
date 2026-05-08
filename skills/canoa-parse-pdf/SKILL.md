@@ -1,11 +1,11 @@
 ---
-name: parse-pdf
+name: canoa-parse-pdf
 description: Parse a dealer-quote PDF or manufacturer line-card PDF into the Canoa catalog. Use when the designer wants to ingest a quote, line card, trade-show catalog, configurable workbook, or any PDF with product specs and pricing. Phrases include "parse this PDF", "ingest this dealer quote", "extract products from this catalog", "add this line card", "I have a quote from <dealer>", or any PDF attachment with FF&E content. Routes canoa_chat → parse_pdf server-side. Auto-detects source kind (dealer_quote_pdf, vendor_pdf, line_card) and synthesizes variant SKUs (`:attr-<hash>`) for products without enumerated SKUs.
 allowed-tools:
   - mcp__canoa__canoa_chat
 ---
 
-# /canoa:parse-pdf — Ingest a PDF
+# /canoa-parse-pdf — Ingest a PDF
 
 Takes a PDF (dealer quote, vendor line card, configurable workbook, trade-show catalog) and converts it into structured catalog entries. Server-side `parse_pdf` does the actual extraction with Haiku-first parsing and a $1.50 per-job cap.
 
@@ -16,7 +16,7 @@ Takes a PDF (dealer quote, vendor line card, configurable workbook, trade-show c
 - **Trade-show catalog**: aggregate brochure with multiple products
 - **Configurable workbook**: option-matrix PDFs (e.g., Steelcase Leap configurator workbook)
 
-For single product pages on the web, use `/canoa:parse-url` instead.
+For single product pages on the web, use `/canoa-parse-url` instead.
 
 ## How to invoke
 
@@ -64,4 +64,4 @@ The parser uses retry-with-backoff on rate limits and transient extraction error
 
 ## After parse
 
-Once products are ingested, the designer often wants to spec one out (`/canoa:spec`), audit existing rows against the new prices (`/canoa:audit`), or add a parsed product to the master schedule (`/canoa:add-to-sheet`).
+Once products are ingested, the designer often wants to spec one out (`/canoa-spec`), audit existing rows against the new prices (`/canoa-audit`), or add a parsed product to the master schedule (`/canoa-add-to-sheet`).

@@ -1,13 +1,13 @@
 ---
-name: setup
-description: Onboard a designer to Canoa — Google sign-in plus master Google Sheet attachment. Use this skill on first run, when the designer says "set me up", "sign me in", "connect my sheet", "log in to canoa", "attach my schedule", or any phrase about getting Canoa initialized. Also use it to recover from a wiped credentials file ("canoa says I'm not signed in"). After setup completes, hand off to `/canoa:start` for the working session.
+name: canoa-setup
+description: Onboard a designer to Canoa — Google sign-in plus master Google Sheet attachment. Use this skill on first run, when the designer says "set me up", "sign me in", "connect my sheet", "log in to canoa", "attach my schedule", or any phrase about getting Canoa initialized. Also use it to recover from a wiped credentials file ("canoa says I'm not signed in"). After setup completes, hand off to `/canoa` for the working session.
 allowed-tools:
   - mcp__canoa__canoa_status
   - mcp__canoa__canoa_signup
   - mcp__canoa__canoa_attach_sheet
 ---
 
-# /canoa:setup — Onboarding
+# /canoa-setup — Onboarding
 
 Walks a designer through Google OAuth and Google Sheet attachment. Run once on first session, or whenever credentials need to be re-established.
 
@@ -15,7 +15,7 @@ Walks a designer through Google OAuth and Google Sheet attachment. Run once on f
 
 Call `canoa_status`. The result has `{signed_in, email, sheet_attached, sheet_name}`.
 
-- If `signed_in` is true and `sheet_attached` is true → say "Already set up as <email>, working from '<sheet_name>'. Run `/canoa:start` to begin." and stop.
+- If `signed_in` is true and `sheet_attached` is true → say "Already set up as <email>, working from '<sheet_name>'. Run `/canoa` to begin." and stop.
 - If `signed_in` is true and `sheet_attached` is false → skip to Step 3.
 - If `signed_in` is false → continue to Step 2.
 
@@ -40,15 +40,15 @@ Tell the designer:
 Wait for their response.
 
 - If they paste a URL, call `canoa_attach_sheet(url)`. On a sheet-access error (not shared, wrong account, etc.), surface the error in plain language and ask them to share the sheet with the signed-in Google account (or use link sharing), then offer to retry.
-- If they say 'skip' or 'not yet', move on. Tell them they can attach later by re-running `/canoa:setup` and pasting a URL.
+- If they say 'skip' or 'not yet', move on. Tell them they can attach later by re-running `/canoa-setup` and pasting a URL.
 
 ## Step 4 — Hand off
 
 Once setup is complete, tell the designer:
 
-> "Setup complete — you're signed in as <email>, working from '<sheet_name>'. Run `/canoa:start` to begin a working session, or just ask me anything FF&E and I'll route to Canoa."
+> "Setup complete — you're signed in as <email>, working from '<sheet_name>'. Run `/canoa` to begin a working session, or just ask me anything FF&E and I'll route to Canoa."
 
-Don't enter working mode here. `/canoa:start` is the orient-and-go entry; this skill is the install/onboard path.
+Don't enter working mode here. `/canoa` is the orient-and-go entry; this skill is the install/onboard path.
 
 ## Recovery
 

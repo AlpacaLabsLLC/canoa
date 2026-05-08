@@ -1,11 +1,11 @@
 ---
-name: spec
+name: canoa-spec
 description: Spec out a product — configurable walkthrough (Aeron, Steelcase Leap, Swoop, Aeron Stool, etc.) or fixed-SKU lock. Use when the designer says "spec out the Aeron", "configure a Leap", "lock this product", "walk me through the options", "spec this", "what are the options on the Swoop", or any request to step through a configurable product's option matrix and produce a final SKU + price. Routes through canoa_chat to the server-side agent which owns the option matrix and dependency rules.
 allowed-tools:
   - mcp__canoa__canoa_chat
 ---
 
-# /canoa:spec — Spec a Product
+# /canoa-spec — Spec a Product
 
 Walks the designer through a configurable product (or locks a fixed-SKU product). The option matrix and `valid_when` cross-option dependency rules live server-side, so this skill relays each turn through `canoa_chat` and presents the response unparaphrased.
 
@@ -15,7 +15,7 @@ Walks the designer through a configurable product (or locks a fixed-SKU product)
 - Fixed-SKU products where the designer wants to "lock in" a final spec line for the schedule
 - Substitution requests ("what if I want the Aeron with leather instead?")
 
-For pure catalog discovery ("what task chairs do you have?"), use `/canoa:find` instead.
+For pure catalog discovery ("what task chairs do you have?"), use `/canoa-find` instead.
 
 ## How to invoke
 
@@ -38,7 +38,7 @@ When the designer locks a configuration but Canoa reports "no verified SKU or li
 
 > "Paste your locked configuration's URL from the manufacturer's configurator and I'll parse the SKU + list price into the catalog."
 
-That routes through `parse_product_url` server-side. If the designer has a dealer quote PDF instead, the agent suggests `/canoa:parse-pdf`.
+That routes through `parse_product_url` server-side. If the designer has a dealer quote PDF instead, the agent suggests `/canoa-parse-pdf`.
 
 Don't menu-list four options — designers don't know which to pick. The agent picks the right one for context and offers it as a single concrete next step.
 
@@ -54,4 +54,4 @@ If the designer locks a candidate-tier configuration, the agent surfaces this an
 
 ## Add to schedule
 
-Once a spec is locked, the designer typically wants it in their master sheet. Suggest `/canoa:add-to-sheet` for the explicit append flow. Or, if the designer says "add it" in plain language, just relay through `canoa_chat` — the server-side agent will route to the sheet write tools (Wedge 3) with read-before-write enforced.
+Once a spec is locked, the designer typically wants it in their master sheet. Suggest `/canoa-add-to-sheet` for the explicit append flow. Or, if the designer says "add it" in plain language, just relay through `canoa_chat` — the server-side agent will route to the sheet write tools (Wedge 3) with read-before-write enforced.

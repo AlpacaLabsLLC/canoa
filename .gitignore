@@ -20,3 +20,7 @@
 # Logs
 *.log
 npm-debug.log*
+
+# Stray wrangler caches if wrangler ever runs from this repo
+.wrangler/
+

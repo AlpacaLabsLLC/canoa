@@ -8,19 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- **Repackaged as a Claude plugin marketplace.** Repo restructured to follow the `skills-for-architects` pattern: `.claude-plugin/marketplace.json` at the root, plugins under `plugins/<name>/`, top-level `agents/` for orchestration personas. The single `canoa` plugin replaces the prior flat `skill/canoa/SKILL.md` + standalone MCP layout.
-- **Skill decomposition.** The monolithic `SKILL.md` was split into 8 workflow skills: `start`, `setup`, `find`, `spec`, `parse-url`, `parse-pdf`, `audit`, `add-to-sheet`. Each skill is one verb, with `allowed-tools` scoped to that workflow.
-- **MCP server bundled with the plugin.** `plugins/canoa/.mcp.json` declares the canoa MCP server using `${CLAUDE_PLUGIN_ROOT}/mcp/dist/server.js`, so installing the plugin auto-wires the 5 MCP tools — no per-user wrangler config required.
+- **Switched to flat single-plugin layout (Estudio-Local/normativa pattern).** Plugin source is `"./"` — repo root holds `.claude-plugin/`, `skills/`, `agents/`, `mcp/`, `.mcp.json`. The earlier nested `plugins/canoa/` layout (skills-for-architects pattern) was right for multi-plugin marketplaces but added unnecessary nesting for canoa's single-plugin distribution.
+- **Skills renamed under a `canoa-` family with a dispatcher.** The dispatcher is `skills/canoa/SKILL.md` (matches plugin name → surfaces as `/canoa`); sub-skills are `canoa-setup`, `canoa-find`, `canoa-spec`, `canoa-parse-url`, `canoa-parse-pdf`, `canoa-audit`, `canoa-add-to-sheet`. Slash UX is `/canoa`, `/canoa-find`, `/canoa-audit`, etc. — no `:` namespace separator from the user's perspective. Mirrors `norma` / `norma-analyze` / `norma-informe`.
+- **Dispatcher rewritten as a real router.** `skills/canoa/SKILL.md` now reads the designer's intent against a routing table and hands off to the right sub-skill, with a working-mode fallback that relays through `canoa_chat` for ambiguous freeform messages.
+
+### Repackaged as a Claude plugin marketplace (earlier 2026-05-08)
+
+- **`.claude-plugin/marketplace.json`** at the root, **`.claude-plugin/plugin.json`** alongside it.
+- **MCP server bundled with the plugin.** `.mcp.json` declares the canoa MCP server using `${CLAUDE_PLUGIN_ROOT}/mcp/dist/server.js`, so installing the plugin auto-wires the 5 MCP tools — no per-user wrangler config required.
+- **Repo renamed `canoa-skill` → `canoa`** at AlpacaLabsLLC. Repo made public for zero-auth Cowork/Code install.
 
 ### Added
 
 - `LICENSE` (MIT, copyright 2026 Alpaca Design Lab LLC).
 - `agents/canoa.md` (hoisted from `agent/canoa.md`) and `agents/README.md` documenting the FF&E specialist persona that runs server-side via `canoa_chat`.
-- Per-plugin `plugins/canoa/README.md` with problem statement, skill table, and install instructions for Claude Cowork + Claude Code.
+- `.gitignore` covers `**/node_modules/`, `.canoa/`, `.wrangler/`, and `.DS_Store`.
 
 ### Removed
 
-- Old flat layout: `skill/canoa/`, `agent/`, top-level `mcp/`. All content migrated into `plugins/canoa/` or `agents/`.
+- Old flat skill layout: `skill/canoa/`, `agent/`, top-level `mcp/`. All content migrated into the new structure.
+- Intermediate `plugins/canoa/` nesting from the earlier same-day iteration. Replaced by flat repo-root layout.
 
 ## [0.1.0-pre] - 2026-05-07
 

@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "canoa",
-      "source": "./plugins/canoa",
-      "description": "AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design. Connects to a Google Sheet schedule, parses vendor URLs and dealer-quote PDFs into a verified catalog, and runs an FF&E specialist conversation backed by manufacturer-cited line cards.",
+      "source": "./",
+      "description": "AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design. /canoa dispatcher routes to sub-skills: canoa-setup, canoa-find, canoa-spec, canoa-parse-url, canoa-parse-pdf, canoa-audit, canoa-add-to-sheet. Connects to a Google Sheet schedule, parses vendor URLs and dealer-quote PDFs into a verified catalog, and runs an FF&E specialist conversation backed by manufacturer-cited line cards.",
       "category": "knowledge-work",
       "tags": ["ffe", "interior-design", "furniture", "specifications", "design"],
       "homepage": "https://canoa.supply",

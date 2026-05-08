@@ -1,11 +1,11 @@
 ---
-name: find
+name: canoa-find
 description: Search the Canoa catalog for products by category, brand, dimensions, materials, price ceiling, lead time, or natural-language description. Use when the designer asks "find me…", "show me…", "what walnut tables under $3k", "any chairs like the Aeron but cheaper", "is there a Hay sofa with COM", "what's in the catalog from Vitra", or any catalog discovery request. Routes to canoa_chat which calls catalog_search server-side (structured filters or NL extraction). Returns manufacturer-cited results with tier (verified / observed / candidate).
 allowed-tools:
   - mcp__canoa__canoa_chat
 ---
 
-# /canoa:find — Catalog Search
+# /canoa-find — Catalog Search
 
 Searches the Canoa catalog. The actual search runs server-side via `canoa_chat` → `catalog_search` (D1 SQL filters or Haiku-extracted NL filters when the designer's query is too freeform for structured params).
 
@@ -45,15 +45,15 @@ Canoa returns a result list with:
 
 Present results unparaphrased. If the catalog is sparse for the query (no hits, or only candidate-tier guesses), Canoa will say so honestly and suggest:
 
-- Pasting a vendor URL to ingest a specific product → `/canoa:parse-url`
-- Pasting a dealer-quote PDF → `/canoa:parse-pdf`
+- Pasting a vendor URL to ingest a specific product → `/canoa-parse-url`
+- Pasting a dealer-quote PDF → `/canoa-parse-pdf`
 - Broadening the query
 
 Don't fabricate alternatives Canoa didn't return. The catalog is small (~80 products today) and growing — false confidence costs designer trust.
 
 ## Configurable products
 
-If a result is configurable (Aeron, Steelcase Leap, Swoop, Aeron Stool, etc.), Canoa returns the family + option-matrix metadata but no fixed price. Tell the designer to invoke `/canoa:spec` to walk through the option matrix and lock a configuration.
+If a result is configurable (Aeron, Steelcase Leap, Swoop, Aeron Stool, etc.), Canoa returns the family + option-matrix metadata but no fixed price. Tell the designer to invoke `/canoa-spec` to walk through the option matrix and lock a configuration.
 
 ## Auto-enqueue note
 

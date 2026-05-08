@@ -1,11 +1,11 @@
 ---
-name: audit
+name: canoa-audit
 description: Audit rows in the master schedule against the catalog and the live vendor source. Use when the designer says "audit my schedule", "check the Eames chairs", "verify this row's price", "is this still current", "are these specs up to date", "double-check the lead times", or any verification request on existing schedule rows. Always re-parses the row's vendor URL — never trusts the cached catalog or sheet value, even if it looks recent. Surfaces drift between sheet ↔ catalog ↔ live parse with provenance, and asks before writing fixes back to the sheet.
 allowed-tools:
   - mcp__canoa__canoa_chat
 ---
 
-# /canoa:audit — Verify Schedule Rows
+# /canoa-audit — Verify Schedule Rows
 
 Audits rows in the designer's master schedule for staleness. Every audit doubles as a re-verification event — the skill always re-parses the row's vendor URL through `canoa_chat` → `parse_product_url`, never trusts the catalog cache or the sheet value alone.
 
@@ -47,4 +47,4 @@ For each audited row, the agent returns one of three states:
 
 ## After audit
 
-If the designer approves a fix, the next step is a sheet update through `/canoa:add-to-sheet` (or directly via `canoa_chat` which routes to the Wedge 3 sheet write tools). Use `update_row_by_match` semantics — patch in place by SKU match — never append a new row. The append-instead-of-edit bug from 2026-05-07 (Eames LCW dupes) was the trigger for adding this rule.
+If the designer approves a fix, the next step is a sheet update through `/canoa-add-to-sheet` (or directly via `canoa_chat` which routes to the Wedge 3 sheet write tools). Use `update_row_by_match` semantics — patch in place by SKU match — never append a new row. The append-instead-of-edit bug from 2026-05-07 (Eames LCW dupes) was the trigger for adding this rule.

@@ -1,11 +1,11 @@
 ---
-name: add-to-sheet
+name: canoa-add-to-sheet
 description: Append a product spec to the designer's master Google Sheet schedule, or update an existing row in place. Use when the designer says "add this to my sheet", "put this in my schedule", "save this spec", "update row 12", "refresh the price on the Eames", or any request to write to the master sheet. Always reads the sheet first to map keys to actual column headers (read-before-write rule). Never appends a new row when an SKU match exists in the sheet — patches in place.
 allowed-tools:
   - mcp__canoa__canoa_chat
 ---
 
-# /canoa:add-to-sheet — Write to Master Schedule
+# /canoa-add-to-sheet — Write to Master Schedule
 
 Writes a product spec to the designer's master Google Sheet. The actual write happens server-side through `canoa_chat` → Wedge 3 sheet tools (`read_master_sheet`, `append_to_sheet`, `update_row_by_match`). This skill enforces two hard rules: **read before write**, and **update in place when an SKU match exists** (don't append duplicates).
 
@@ -15,7 +15,7 @@ Writes a product spec to the designer's master Google Sheet. The actual write ha
 - **Update an existing row**: refresh price after an audit, change a quantity, swap a finish
 - **Bulk append**: ingest multiple parsed rows from a PDF (handled per-row by the server)
 
-For audits, use `/canoa:audit` first — that surfaces the drift; then this skill writes the fix once approved.
+For audits, use `/canoa-audit` first — that surfaces the drift; then this skill writes the fix once approved.
 
 ## How to invoke
 
@@ -55,4 +55,4 @@ Never say "the rest will be filled in by a background process" — there's no su
 
 ## Configurable products without a price
 
-If the designer asks to add a configurable product whose spec isn't fully locked (no SKU + price on file), don't write a half-finished row. Tell them: *"Lock the configuration first via `/canoa:spec`, or paste the manufacturer's locked-config URL via `/canoa:parse-url`."* Half-finished rows pollute the schedule.
+If the designer asks to add a configurable product whose spec isn't fully locked (no SKU + price on file), don't write a half-finished row. Tell them: *"Lock the configuration first via `/canoa-spec`, or paste the manufacturer's locked-config URL via `/canoa-parse-url`."* Half-finished rows pollute the schedule.

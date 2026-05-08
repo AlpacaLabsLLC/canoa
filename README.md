@@ -1,83 +1,110 @@
-# Canoa
+# Canoa — AI specifications manager for FF&E and interior design
 
-Your AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design — packaged as a Claude plugin.
+Canoa is a Claude plugin for working with furniture, fixtures, and equipment specifications. Connects to your master Google Sheet schedule, parses vendor URLs and dealer-quote PDFs into a verified, manufacturer-cited catalog, and runs an FF&E specialist conversation backed by manufacturer line cards and configurable option matrices.
 
-This repo is both a **plugin marketplace** and a **single-plugin distribution**. The marketplace lists one plugin (`canoa`), which bundles 8 workflow skills, a server-side FF&E specialist persona, and a Node MCP server that proxies to `canoa.supply/api/*` where the actual catalog work happens.
+The plugin ships **one entry point — `/canoa` — that dispatches to seven sub-skills**:
+
+| Slash command | Does | When |
+|---|---|---|
+| **`/canoa`** | Dispatcher — reads your task, routes to the right sub-skill, falls back to working mode for freeform | Always start here |
+| `/canoa-setup` | Google OAuth + master sheet attach | First run, or to switch accounts / re-attach |
+| `/canoa-find` | Catalog search (structured filters or NL) | "find me…", "show me…", "any X under $Y" |
+| `/canoa-spec` | Configurable walkthrough or fixed-SKU lock | "spec out the Aeron", option-matrix flows |
+| `/canoa-parse-url` | Ingest a vendor URL into the catalog | Designer pasted a manufacturer / dealer / configurator URL |
+| `/canoa-parse-pdf` | Ingest a dealer quote, line card, or trade-show PDF | Designer attached a PDF |
+| `/canoa-audit` | Verify schedule rows vs catalog vs live re-parse | "audit my schedule", "is this still current" |
+| `/canoa-add-to-sheet` | Append spec to master schedule (read-before-write, update-in-place) | "add this to my sheet", "update row 12" |
 
 ## Install
 
-**Claude Cowork (desktop):**
+### Claude Cowork (desktop)
 
-1. Open the **+** menu → **Add marketplace from GitHub**
+1. **+** menu → **Add marketplace from GitHub**
 2. Enter `AlpacaLabsLLC/canoa`
 3. Install the **canoa** plugin
+4. Run `/canoa` to start
 
-**Claude Code (terminal):**
+### Claude Code (terminal)
 
 ```bash
 claude plugin marketplace add AlpacaLabsLLC/canoa
 claude plugin install canoa@canoa
 ```
 
-After install, run `/canoa:setup` to onboard (Google OAuth + master Google Sheet attach), then `/canoa:start` to begin a working session — or just say "use canoa" and the skill auto-fires from its description.
+Then `/canoa` to start, or any of the sub-skills directly.
+
+### Local development
+
+```bash
+git clone https://github.com/AlpacaLabsLLC/canoa.git
+claude --plugin-dir ./canoa
+```
+
+## Architecture
+
+```
+                ┌─────────────────┐
+                │     /canoa      │
+                │   (dispatcher)  │
+                └────────┬────────┘
+                         │
+   ┌────────┬────────┬───┴────┬────────┬──────────┬──────────────────┐
+   ▼        ▼        ▼        ▼        ▼          ▼                  ▼
+/canoa-  /canoa-  /canoa-  /canoa-  /canoa-    /canoa-           /canoa-
+ setup    find     spec    parse-   parse-      audit             add-to-
+                            url      pdf                          sheet
+   │        │        │        │        │          │                  │
+   └────────┴────────┴────────┴────────┴──────────┴──────────────────┘
+                                │
+                       canoa MCP server
+                    (5 tools: status, signup,
+                     signout, attach_sheet, chat)
+                                │
+                                ▼
+                       canoa.supply/api/*
+                  (Cloudflare Pages + Functions
+                   + D1 catalog cache + R2)
+```
+
+The MCP server is bundled with the plugin via `.mcp.json` using `${CLAUDE_PLUGIN_ROOT}` — installs auto-wire it; no per-user config required.
 
 ## Repo layout
 
 ```
-canoa/  (this repo)
+canoa/
 ├── .claude-plugin/
-│   └── marketplace.json          # marketplace catalog
-├── plugins/
-│   └── canoa/                    # the canoa plugin
-│       ├── .claude-plugin/
-│       │   └── plugin.json
-│       ├── README.md             # per-plugin overview + skill table
-│       ├── skills/               # 8 workflow skills
-│       │   ├── start/
-│       │   ├── setup/
-│       │   ├── find/
-│       │   ├── spec/
-│       │   ├── parse-url/
-│       │   ├── parse-pdf/
-│       │   ├── audit/
-│       │   └── add-to-sheet/
-│       ├── .mcp.json             # bundled MCP server config
-│       └── mcp/                  # Node MCP server (5 tools)
+│   ├── marketplace.json     # marketplace catalog (single-plugin)
+│   └── plugin.json          # plugin manifest
+├── skills/
+│   ├── canoa/SKILL.md       # dispatcher
+│   ├── canoa-setup/SKILL.md
+│   ├── canoa-find/SKILL.md
+│   ├── canoa-spec/SKILL.md
+│   ├── canoa-parse-url/SKILL.md
+│   ├── canoa-parse-pdf/SKILL.md
+│   ├── canoa-audit/SKILL.md
+│   └── canoa-add-to-sheet/SKILL.md
 ├── agents/
-│   ├── canoa.md                  # FF&E specialist persona (mirrored to canoa-site)
+│   ├── canoa.md             # FF&E specialist persona (mirrored to canoa-site)
 │   └── README.md
+├── mcp/
+│   ├── src/server.ts
+│   └── dist/server.js       # committed for fresh-clone-runs-MCP
+├── .mcp.json                # bundled MCP config (uses ${CLAUDE_PLUGIN_ROOT})
 ├── CHANGELOG.md
 ├── LICENSE
 └── CLAUDE.md
 ```
 
-## What's where
+## Catalog architecture
 
-| Path | Purpose |
-|---|---|
-| `.claude-plugin/marketplace.json` | Marketplace catalog — single plugin entry pointing at `./plugins/canoa` |
-| `plugins/canoa/skills/<verb>/SKILL.md` | One workflow per skill: `/canoa:start`, `/canoa:find`, `/canoa:audit`, etc. |
-| `plugins/canoa/.mcp.json` | Wires the bundled MCP server to Claude on plugin enable |
-| `plugins/canoa/mcp/` | Node MCP server source + compiled output (`dist/server.js`) |
-| `agents/canoa.md` | Server-side FF&E persona — also lives in `canoa-site/_shared/agent-persona.ts`; keep in sync |
+Three tiers — every product reference cites its tier so designers know the trust level:
 
-## Develop
+- **verified** — manufacturer source retained (line card, vendor URL, parsed configurator); ship-grade
+- **observed** — community / dealer-quote derived; partial data; cite carefully
+- **candidate** — LLM-suggested, not yet validated; placeholder for designer review
 
-Test locally without publishing:
-
-```bash
-claude --plugin-dir ./plugins/canoa
-```
-
-Reload after edits:
-
-```text
-/reload-plugins
-```
-
-## Status
-
-Pre-alpha. Onboarding Wedges 1+2 (signup + sheet attach), Wedge 3 (sheet read/write), and Tier B (catalog enrichment skills) shipped 2026-05-07. Repackaged as a Claude plugin marketplace 2026-05-08.
+Multi-source ingestion (URL / PDF / SIF / dealer-quote / line-card / Configura). Pricing layered: list price shared across users, dealer-net redacted per-user. Watch is verification-only (catalog refresh, not autonomous spec generation).
 
 ## License
 
