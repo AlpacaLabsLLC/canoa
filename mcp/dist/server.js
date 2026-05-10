@@ -10,9 +10,8 @@
 // except for in-memory chat history (lost on restart).
 //
 // Env:
-//   CANOA_API_BASE   Default https://canoa.supply/api. Set http://localhost:8788/api for local dev.
-//   CANOA_USER_ID    Optional. If ~/.canoa/credentials.json is present, that wins.
-//                    Useful for forcing a known test user before signup is built.
+//   CANOA_API_BASE   Default https://canoa-site.pages.dev/api. Set http://localhost:8788/api for local dev.
+//                    Will move to https://canoa.supply/api once DNS cuts over from the legacy Webflow site.
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
@@ -21,11 +20,11 @@ import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-const API_BASE = process.env.CANOA_API_BASE ?? "https://canoa.supply/api";
+const API_BASE = process.env.CANOA_API_BASE ?? "https://canoa-site.pages.dev/api";
 const CREDS_PATH = resolve(homedir(), ".canoa", "credentials.json");
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// dist/server.js → ../../agent/canoa.md
-const PERSONA_PATH = resolve(__dirname, "..", "..", "agent", "canoa.md");
+// dist/server.js → ../../agents/canoa.md
+const PERSONA_PATH = resolve(__dirname, "..", "..", "agents", "canoa.md");
 let personaBody;
 try {
     const raw = readFileSync(PERSONA_PATH, "utf-8");
@@ -54,14 +53,14 @@ function writeCredentials(creds) {
 }
 // Mutable so canoa_signup / canoa_attach_sheet can update without restarting the process.
 const _bootCreds = readCredentials();
-let activeUserId = _bootCreds?.user_id ?? process.env.CANOA_USER_ID;
+let activeUserId = _bootCreds?.user_id;
 let activeEmail = _bootCreds?.email;
 let activeSheetId = _bootCreds?.sheet_id;
 let activeSheetName = _bootCreds?.sheet_name;
 const history = [];
 const server = new Server({
     name: "canoa",
-    version: "0.3.0",
+    version: "0.2.1",
 }, {
     capabilities: {
         tools: {},
