@@ -49,7 +49,7 @@ Present results unparaphrased. If the catalog is sparse for the query (no hits, 
 - Pasting a dealer-quote PDF → `/canoa-parse-pdf`
 - Broadening the query
 
-Don't fabricate alternatives Canoa didn't return. The catalog is small (~80 products today) and growing — false confidence costs designer trust.
+Don't fabricate alternatives Canoa didn't return. The catalog is growing — false confidence costs designer trust.
 
 ## Configurable products
 
