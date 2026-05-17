@@ -1,57 +1,57 @@
 ---
 name: canoa-spec
-description: Spec out a product — configurable walkthrough (Aeron, Steelcase Leap, Swoop, Aeron Stool, etc.) or fixed-SKU lock. Use when the designer says "spec out the Aeron", "configure a Leap", "lock this product", "walk me through the options", "spec this", "what are the options on the Swoop", or any request to step through a configurable product's option matrix and produce a final SKU + price. Routes through canoa_chat to the server-side agent which owns the option matrix and dependency rules.
-allowed-tools:
-  - mcp__canoa__canoa_chat
+description: >
+  Walk through a configurable product (Aeron, Steelcase Leap, Swoop, Aeron Stool)
+  or lock a fixed-SKU product. Use when the designer says "spec out the Aeron",
+  "configure a Leap", "lock this product", "walk me through the options",
+  "what are the options on the Swoop", or any request to step through a
+  configurable product's option matrix and produce a final SKU + price.
+allowed-tools: mcp__canoa__spec_walkthrough
 ---
 
-# /canoa-spec — Spec a Product
+# Spec a Product
 
-Walks the designer through a configurable product (or locks a fixed-SKU product). The option matrix and `valid_when` cross-option dependency rules live server-side, so this skill relays each turn through `canoa_chat` and presents the response unparaphrased.
-
-## When to use this skill
-
-- Configurable products with multiple option dimensions (chair: size + frame + back + arms + casters + etc.)
-- Fixed-SKU products where the designer wants to "lock in" a final spec line for the schedule
-- Substitution requests ("what if I want the Aeron with leather instead?")
-
-For pure catalog discovery ("what task chairs do you have?"), use `/canoa-find` instead.
+Walks the designer through a configurable product turn by turn. The option matrix and `valid_when` cross-option dependency rules live server-side — never reproduce them locally; your training data has stale matrices and missing dependency clauses.
 
 ## How to invoke
 
-Relay the designer's intent verbatim through `canoa_chat`. Don't try to walk the option matrix on your side — your training data has stale option matrices and missing `valid_when` rules.
+Call `canoa.spec_walkthrough` with the product reference (catalog ID, SKU prefix, or product name) and the designer's free-text intent:
 
 ```
-canoa_chat("spec out an Aeron Size B for an executive office")
+canoa.spec_walkthrough({
+  product: "aeron",
+  message: "spec out an Aeron Size B for an executive office"
+})
 ```
 
-The server-side agent will:
+The tool returns the next prompt for the designer — one option dimension at a time, with a small table (`option | what it does`). Present it unparaphrased. Capture the designer's answer, pass it back via `canoa.spec_walkthrough` again with the session ID it returned. Continue until the tool reports `locked: true`.
 
-1. Confirm the product family.
-2. Walk **one option per turn**, presenting a small table (option | what it does), ask, lock, advance.
-3. Catch cross-option dependency conflicts (e.g., Forward Seat Angle requires Forward Tilt) and offer resolution.
-4. At the end, return: final SKU (or option string if no SKU resolves), list price, lead time, dealer note where applicable.
+## What a finished walkthrough returns
+
+- **Final SKU** (or option string if no canonical SKU resolves)
+- **List price** for the locked configuration
+- **Lead time** when available
+- **Dealer note** when applicable (e.g., MillerKnoll dealer-only items)
+- **Tier**
 
 ## Closing without a price on file
 
-When the designer locks a configuration but Canoa reports "no verified SKU or list price on file" (common today — the catalog has option matrices but few resolved variants), the server-side agent will lead with **one bold action**, not a menu:
+When the designer locks a configuration but the catalog has no verified SKU or list price for it (common — the catalog has option matrices but few resolved variants), lead with **one bold action**:
 
 > "Paste your locked configuration's URL from the manufacturer's configurator and I'll parse the SKU + list price into the catalog."
 
-That routes through `parse_product_url` server-side. If the designer has a dealer quote PDF instead, the agent suggests `/canoa-parse-pdf`.
-
-Don't menu-list four options — designers don't know which to pick. The agent picks the right one for context and offers it as a single concrete next step.
+That routes to `/canoa-parse-url`. If the designer has a dealer-quote PDF instead, suggest `/canoa-parse-pdf`. Don't menu-list four options — designers don't know which to pick.
 
 ## Tier disclosure
 
-Every spec result includes the source's tier:
+Lead the locked-spec presentation with the source tier:
 
 - **verified** — manufacturer line card or canonical vendor URL parsed; trust for spec books
 - **observed** — community / dealer-quote derived; partial; cite carefully
-- **candidate** — LLM-suggested, not yet validated; do not ship in a spec book without verification
+- **candidate** — LLM-suggested, not yet validated; don't ship in a spec book without verifying
 
-If the designer locks a candidate-tier configuration, the agent surfaces this and suggests parsing a manufacturer URL or dealer PDF to upgrade the tier.
+If the designer locks a candidate-tier configuration, suggest parsing a manufacturer URL or dealer PDF to upgrade the tier.
 
-## Add to schedule
+## Adding to the schedule
 
-Once a spec is locked, the designer typically wants it in their master sheet. Suggest `/canoa-add-to-sheet` for the explicit append flow. Or, if the designer says "add it" in plain language, just relay through `canoa_chat` — the server-side agent will route to the sheet write tools (Wedge 3) with read-before-write enforced.
+Once locked, the designer usually wants the spec in the master sheet. Suggest `/canoa-source-room` if they're sourcing a full space; otherwise call `canoa.append_rows` directly with the locked spec — read the sheet headers first via `canoa.read_master_sheet`.

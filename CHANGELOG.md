@@ -4,6 +4,42 @@ All notable changes to **Canoa** (`AlpacaLabsLLC/canoa`) are documented in this 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-16
+
+Full rewrite to match the Anthropic `knowledge-work-plugins/small-business` pattern: remote HTTP MCP, skills-only payload, workflow-shaped skills instead of `canoa_chat` relays.
+
+### Changed
+
+- **`.mcp.json` is now a single remote HTTP entry** — `canoa` → `https://canoa.supply/api/mcp`. No bundled local Node server, no `${CLAUDE_PLUGIN_ROOT}` path. Fixes the two V0.x install-path failures: Cowork no longer needs to auto-load a plugin `.mcp.json` containing a local-command spec, and hotfixes don't require existing users to re-pull from a cache-locked marketplace.
+- **Skills no longer relay through `canoa_chat`.** Each skill calls granular MCP tools directly (`catalog_search`, `parse_product_url`, `parse_pdf`, `spec_walkthrough`, `read_master_sheet`, `append_rows`, `update_row_by_match`, `audit_row`, `audit_schedule_enqueue`, `audit_job_status`, `export_spec_book`). The router (`skills/canoa/SKILL.md`) is now purely a dispatcher; there is no working-mode fallback that paraphrases through one mega-tool.
+- **`marketplace.json` carries `metadata.version`** (1.0.0). PATTERNS.md rule #6 (three-artifact discipline) now applies in full to canoa.
+- **License** changed from MIT to Proprietary. The plugin remains free to install; the catalog data and backend service are not open source.
+
+### Added
+
+- **`canoa-onboard`** — replaces `canoa-setup`. Adds the Anthropic-pattern onboarding arc: sign in → attach sheet → parse one URL to prove value → 5-question studio interview → `## Studio profile` block written to session memory → weekly check-in cadence. Includes `reference/studio-profile-questions.md`, `reference/sheet-templates.md`, and a worked transcript at `reference/examples/happy-path.md`.
+- **`canoa-audit-row`** — single-row verification (replaces the per-row half of the old `canoa-audit`).
+- **`canoa-audit-schedule`** — bulk verification with a server-side queue (replaces the bulk half of the old `canoa-audit`; requires the `audit_schedule_enqueue` + `audit_job_status` MCP tools).
+- **`canoa-source-room`** — multi-step sourcing workflow: brief → catalog cards → configurable walkthroughs → cart review → approval-gated append. Includes `reference/room-types.md`.
+- **`canoa-build-spec-book`** — schedule → branded artifact (PDF / Sheets / Markdown), with server-side Dealer Net redaction and audience-aware column profiles. Includes `reference/output-formats.md`.
+- **`canoa-weekly-check`** — Monday brief. Surfaces drift, stale rows, in-flight orders, and tier=candidate rows in active projects. Adapts to designer's headaches from the studio profile.
+
+### Removed
+
+- **`mcp/` directory** — bundled Node MCP server deleted. The connector lives at canoa-site.
+- **`agents/` directory** — persona documentation no longer ships in the plugin. Lives in canoa-site only.
+- **`CLAUDE.md`** — Anthropic plugin pattern doesn't ship one.
+- **`canoa-setup` skill** — folded into `canoa-onboard`.
+- **`canoa-add-to-sheet` skill** — folded into `canoa-source-room` and direct sheet-tool calls from other skills.
+- **`canoa-audit` skill** — split into `canoa-audit-row` (single) and `canoa-audit-schedule` (bulk).
+- **Working-mode fallback in the router** — the old `canoa_chat`-relay path for ambiguous messages. The router now always picks a command or asks one clarifying question.
+
+### Backend dependency
+
+This plugin assumes `canoa.supply/api/mcp` exposes the granular tool surface listed above (12 tools). As of 2026-05-16, the live MCP exposes the original 5 (`status`, `signup`, `signout`, `attach_sheet`, `chat`). The `canoa_chat` orchestrator needs to be refactored into the granular tools before the plugin is functional end-to-end. See plan in conversation log.
+
+---
+
 ## [0.2.1] - 2026-05-10
 
 ### Fixed

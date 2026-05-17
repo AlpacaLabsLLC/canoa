@@ -4,17 +4,20 @@
     "name": "ALPA",
     "email": "f@alpacalabs.co"
   },
-  "description": "Canoa — AI specifications manager for FF&E and interior design.",
+  "metadata": {
+    "description": "Canoa — AI specifications manager for FF&E and interior design.",
+    "version": "1.0.0"
+  },
   "plugins": [
     {
       "name": "canoa",
       "source": "./",
-      "description": "AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design. /canoa dispatcher routes to sub-skills: canoa-setup, canoa-find, canoa-spec, canoa-parse-url, canoa-parse-pdf, canoa-audit, canoa-add-to-sheet. Connects to a Google Sheet schedule, parses vendor URLs and dealer-quote PDFs into a verified catalog, and runs an FF&E specialist conversation backed by manufacturer-cited line cards.",
+      "description": "AI specifications manager for FF&E. Parse vendor URLs and dealer quotes into a verified catalog, spec configurable products, keep your master schedule in sync, and build clean spec books — all backed by manufacturer-cited line cards via the canoa.supply remote connector.",
       "category": "knowledge-work",
       "tags": ["ffe", "interior-design", "furniture", "specifications", "design"],
       "homepage": "https://canoa.supply",
       "repository": "https://github.com/AlpacaLabsLLC/canoa",
-      "license": "MIT"
+      "license": "Proprietary"
     }
   ]
 }

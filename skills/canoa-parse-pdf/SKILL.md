@@ -1,67 +1,121 @@
 ---
 name: canoa-parse-pdf
-description: Parse a dealer-quote PDF or manufacturer line-card PDF into the Canoa catalog. Use when the designer wants to ingest a quote, line card, trade-show catalog, configurable workbook, or any PDF with product specs and pricing. Phrases include "parse this PDF", "ingest this dealer quote", "extract products from this catalog", "add this line card", "I have a quote from <dealer>", or any PDF attachment with FF&E content. Routes canoa_chat → parse_pdf server-side. Auto-detects source kind (dealer_quote_pdf, vendor_pdf, line_card) and synthesizes variant SKUs (`:attr-<hash>`) for products without enumerated SKUs.
-allowed-tools:
-  - mcp__canoa__canoa_chat
+description: >
+  Parse a dealer-quote PDF or manufacturer line-card PDF into the Canoa catalog.
+  Use when the designer wants to ingest a quote, line card, trade-show catalog,
+  configurable workbook, or any PDF with FF&E product specs and pricing.
+  Phrases include "parse this PDF", "ingest this dealer quote", "extract
+  products from this catalog", "add this line card", "I have a quote from
+  <dealer>", or any PDF attachment with FF&E content.
+allowed-tools: Read, mcp__canoa__ingest_parsed_products
 ---
 
-# /canoa-parse-pdf — Ingest a PDF
+# Ingest a PDF
 
-Takes a PDF (dealer quote, vendor line card, configurable workbook, trade-show catalog) and converts it into structured catalog entries. Server-side `parse_pdf` does the actual extraction with Haiku-first parsing and a $1.50 per-job cap.
+Reads a PDF the designer attached, extracts product candidates from the rendered pages, and stores them in the Canoa catalog with provenance. Parsing happens client-side via Claude's native `Read` tool; the canoa MCP only ingests already-extracted structured data.
 
-## When to use this skill
+## When to use
 
-- **Dealer quote PDF** (e.g., from Suite NY, MillerKnoll dealer, Vitra dealer): products with negotiated prices specific to this designer / project
-- **Vendor line-card PDF**: manufacturer's official multi-product catalog (e.g., Hay 2026 line card, Vitra public catalog)
-- **Trade-show catalog**: aggregate brochure with multiple products
-- **Configurable workbook**: option-matrix PDFs (e.g., Steelcase Leap configurator workbook)
+- **Dealer quote PDF** — products with negotiated, project-specific prices
+- **Vendor line-card PDF** — manufacturer's official multi-product catalog
+- **Trade-show catalog** — aggregate brochure with multiple products
+- **Configurable workbook** — option-matrix PDFs (Steelcase Leap configurator workbook)
 
-For single product pages on the web, use `/canoa-parse-url` instead.
+For single product pages on the web, use `/canoa-parse-url`.
 
-## How to invoke
+## Workflow
 
-The designer must attach the PDF to the conversation (drag-and-drop or file path). Capture intent + path and relay through `canoa_chat`:
+### Step 1 — Identify source kind
+
+The designer attaches the PDF (drag-and-drop into chat). If context is missing, ask once:
+
+> *"Is this a dealer quote (project-specific pricing), a vendor line card (public catalog), or something else?"*
+
+Pick the right `source_kind` (`dealer_quote_pdf`, `vendor_pdf`, or `line_card`). The choice affects tier and dealer-net handling on ingestion.
+
+### Step 2 — Read the PDF
+
+Call the native `Read` tool on the attached file path. `Read` returns the rendered pages as multimodal content (visual + text), 20 pages per call. For PDFs longer than 20 pages:
+
+- First call: pages 1–20
+- Subsequent calls: pages 21–40, 41–60, etc.
+- Concatenate extractions across calls before ingestion
+
+### Step 3 — Extract product candidates
+
+From the rendered pages, build a structured product array. For each product:
+
+- **manufacturer** — the brand that makes the product, not the dealer (DWR resells Hay → manufacturer is Hay)
+- **product_name** + collection if applicable
+- **variants** — size / color / material SKUs when the page enumerates them
+- **list_price_cents** — manufacturer list price (even when dealer-net is also shown)
+- **dealer_net_cents** — only when the PDF shows a dealer-specific quoted price (server stores per-user)
+- **page_reference** — string like `"p.34"` or `"pp.12–14"` for citation
+- **dimensions, materials, image_url** — when surfaced
+
+For configurable products without enumerated SKUs, leave `variants: []` — the server will synthesize placeholder SKUs with `:attr-<hash>` prefixes during ingestion.
+
+### Step 4 — Confirm before ingestion
+
+Show the designer the extracted product list (5–10 line summary, manufacturer + product + price + page ref). Ask:
+
+> *"Ingest these N products into the catalog? Dealer-net pricing will be stored privately to your account."*
+
+Wait for explicit approval. Don't ingest silently.
+
+### Step 5 — Ingest
+
+Call:
 
 ```
-canoa_chat("parse this dealer quote: ./quotes/suite-ny-2026-05-08.pdf")
+canoa.ingest_parsed_products({
+  source_kind: "dealer_quote_pdf" | "vendor_pdf" | "line_card",
+  source_metadata: {
+    filename: "suite-ny-2026-05-08.pdf",
+    designer_provided_dealer: "Suite NY",     // optional, for dealer quotes
+    page_count: 12
+  },
+  products: [ ...extracted product candidates ]
+})
 ```
 
-If the designer attaches without context, ask once: *"Is this a dealer quote (project-specific pricing), a vendor line card (public catalog), or something else?"* Then relay with the source kind in the message.
+The server:
 
-## What the server returns
+- Canonicalizes manufacturers against the 50-mfr reference + 24-dealer exclusion list
+- Synthesizes `:attr-<hash>` SKUs for variant-less configurables
+- Applies dealer-net redaction (allowlist-driven, server-side only)
+- Returns ingested IDs, rejected products with reasons, and warnings (e.g., "Heuristic-matched 'DWR' → 'Hay' on row 3")
 
-Per-product extraction includes:
+Surface warnings to the designer in plain language. Don't bury them.
 
-- **Manufacturer** (canonical — dealer name from the PDF header is stripped)
-- **Product name + collection**
-- **Variants** (size / color / material SKUs from the PDF)
-- **List price** (manufacturer list, even when a dealer-net is also shown)
-- **Dealer-net price** (per-user, never shared across users — redaction is allowlist-driven)
-- **Lead time** (when the PDF surfaces it)
-- **Page reference** (for citation: "Hay 2026 Line Card, p.34")
-- **Tier**: verified for vendor PDFs / line cards; observed for dealer quotes (community-observed pricing)
+## Tier assignment (server-side)
 
-### Variant SKU synthesis
+- `vendor_pdf` / `line_card` → tier `verified` (manufacturer source retained)
+- `dealer_quote_pdf` → tier `observed` (community-observed pricing)
 
-For products in the PDF without enumerated SKUs (e.g., a configurable workbook with options but no variant codes), the parser synthesizes a placeholder SKU with a `:attr-<hash>` prefix. The designer can later upgrade these to canonical SKUs by parsing a manufacturer URL of the locked configuration.
+## Manufacturer canonicalization examples
 
-## Manufacturer canonicalization
-
-The parser uses a 50-mfr canonical reference + 24-dealer exclusion list to ensure manufacturer attribution is correct:
+The server canonicalizes; the skill body shouldn't pre-guess. Examples surfaced in `warnings`:
 
 - **Stool 60** → Artek (not Vitra, even though Vitra distributes)
 - **Gather Tables** → Hem (not DWR)
 - **Menu** products → Audo Copenhagen (post-2021 rebrand)
-- DWR / YDesign / 2Modern / Suite NY / etc. → manufacturer detected from product, dealer name dropped
+- DWR / YDesign / 2Modern / Suite NY → manufacturer detected from product; dealer name dropped
 
-If the PDF is ambiguous (no clear manufacturer markers), the agent surfaces this and asks before assigning.
+If the PDF is ambiguous (no clear manufacturer markers), the server returns the row in `rejected` with `reason: "ambiguous_manufacturer"`. Show the designer the row and ask which manufacturer to assign before re-submitting.
 
-## Cost cap and resilience
+## Long PDFs (>20 pages)
 
-Each PDF job is capped at $1.50 of Anthropic spend. Long PDFs (50+ pages) may parse partially under the cap and return a "continued" flag — the designer can re-invoke with a page range to finish.
+Chunked Read calls may split a product across page boundaries (header on p.20, specs on p.21). Catch this in Step 4 cart review: if a product's spec block looks incomplete, prompt the designer:
 
-The parser uses retry-with-backoff on rate limits and transient extraction errors. If parsing fully fails, surface the error and the page count attempted; suggest the designer try a smaller page range or a higher-resolution version of the PDF.
+> *"Row 7 (Hay Mags Sofa) is missing dimensions — looks like the spec sheet continues on the next page. Want me to re-read pages 20–22 and re-extract?"*
 
-## After parse
+For very long line cards (100+ pages), recommend the designer split the PDF or ingest in passes by section.
 
-Once products are ingested, the designer often wants to spec one out (`/canoa-spec`), audit existing rows against the new prices (`/canoa-audit`), or add a parsed product to the master schedule (`/canoa-add-to-sheet`).
+## After ingest
+
+Common next steps:
+
+- Spec out a parsed configurable → `/canoa-spec`
+- Audit existing schedule rows against the new prices → `/canoa-audit-row` or `/canoa-audit-schedule`
+- Source a room using newly-ingested products → `/canoa-source-room`

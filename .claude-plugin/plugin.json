@@ -1,13 +1,13 @@
 {
   "name": "canoa",
-  "version": "0.2.1",
-  "description": "AI specifications manager for FF&E (furniture, fixtures, equipment) and interior design. Spec out furniture and lighting, validate vendor URLs, parse dealer-quote PDFs, and keep a master schedule in sync — backed by a verified, manufacturer-cited catalog.",
+  "version": "1.0.0",
+  "description": "AI specifications manager for FF&E. Parse vendor URLs and dealer quotes into a verified catalog, spec configurable products like the Aeron, keep your master schedule in sync, and build clean spec books — every step backed by manufacturer-cited line cards.",
   "author": {
     "name": "ALPA",
     "email": "f@alpacalabs.co"
   },
   "homepage": "https://canoa.supply",
   "repository": "https://github.com/AlpacaLabsLLC/canoa",
-  "license": "MIT",
-  "keywords": ["ffe", "interior-design", "furniture", "specifications", "design", "architecture"]
+  "license": "Proprietary",
+  "keywords": ["ffe", "interior-design", "furniture", "specifications", "design"]
 }
