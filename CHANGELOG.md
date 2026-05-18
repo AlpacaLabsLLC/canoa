@@ -4,6 +4,12 @@ All notable changes to **Canoa** (`AlpacaLabsLLC/canoa`) are documented in this 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-05-18
+
+### Changed
+
+- **`canoa-build-spec-book` SKILL clarified on PDF rendering.** The server returns print-ready HTML with `window.print()` triggered on load — the designer's browser produces the PDF via Cmd+P → Save as PDF. Native server-rendered PDF (Cloudflare Browser Rendering) lands in v1.1. The skill body and `reference/output-formats.md` now reflect this; no behavioral change vs v1.0.0, only documentation alignment with what the backend ships.
+
 ## [1.0.0] - 2026-05-16
 
 Full rewrite to match the Anthropic `knowledge-work-plugins/small-business` pattern: remote HTTP MCP, skills-only payload, workflow-shaped skills instead of `canoa_chat` relays.

@@ -2,13 +2,19 @@
 
 ## PDF (default for client delivery)
 
-- **Cover** — project name, client name, studio name, issue date, audit date
-- **Per-page layout** — 4 items per page (commercial / hospitality) or 2 per page (residential, larger images)
-- **Item block** — thumbnail (col A) on the left; identifiers + specs + price on the right
-- **Footer** — page number / total, audit timestamp, studio contact
-- **Page break** — auto-break by room when the schedule has a Room column populated
+The server returns a print-ready HTML page with `window.print()` triggered on load. The designer's browser opens its print dialog and they save to PDF via Cmd+P → Save as PDF. Native server-rendered PDF (via Cloudflare Browser Rendering) is a v1.1 follow-up.
 
-Designer logo placement: top-left of cover + top-right of every interior page. Logo URL pulled from the studio profile if set; if not set, the export prompts the designer once and stores the answer.
+- **Cover** — project name, client name, studio name, issue date, items count
+- **Item block** — table per category; identifiers, specs, price, URL linkified
+- **Footer** — studio footer line (default: "Specifications subject to change — verify before order placement"); designer can override per-export
+- **Page break** — CSS `page-break-inside: avoid` on `<tr>` keeps rows whole; categories flow naturally
+- **Print stylesheet** — A4-margined, header + footer reserved; brand color rule on category headings (terracotta default, override via `brand_template.primary_color`)
+
+Designer logo: top-right of cover. Logo URL pulled from the studio profile; if not set, the cover renders without one.
+
+## HTML (same as PDF without auto-print)
+
+Identical render to the PDF format minus the auto-trigger. Useful when the designer wants to view in-browser without immediately seeing the print dialog. Same 24h signed-URL retrieval; same print stylesheet — designer can still Cmd+P → Save as PDF.
 
 ## Google Sheets (collaborative review)
 

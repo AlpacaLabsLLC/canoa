@@ -12,7 +12,7 @@ allowed-tools: mcp__canoa__read_master_sheet, mcp__canoa__export_spec_book
 
 # Build a Spec Book
 
-Produces a client-facing spec book from the master schedule. Three output formats: PDF (default for client delivery), Google Sheets (for collaborative review), Markdown (for embedding in other docs).
+Produces a client-facing spec book from the master schedule. Four output formats: PDF (default for client delivery — server returns print-ready HTML that auto-opens the designer's browser print dialog), HTML (same render without auto-print), Google Sheets (for collaborative review), Markdown (for embedding in other docs). Native server-rendered PDF lands in v1.1.
 
 ## How to invoke
 
