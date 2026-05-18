@@ -2,7 +2,7 @@
   "mcpServers": {
     "canoa": {
       "type": "http",
-      "url": "https://canoa.supply/api/mcp"
+      "url": "https://canoa-site.pages.dev/api/mcp"
     }
   }
 }

@@ -4,6 +4,12 @@ All notable changes to **Canoa** (`AlpacaLabsLLC/canoa`) are documented in this 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-05-18
+
+### Fixed
+
+- **`.mcp.json` now points to `https://canoa-site.pages.dev/api/mcp`.** The v1.0.0 + v1.0.1 url `https://canoa.supply/api/mcp` was aspirational — the apex DNS still serves the legacy Webflow marketing site and `/api/*` 405s. The Pages-hosted MCP (which carries the v1.0.0 granular tool surface) is reachable at the workers.dev hostname today; the apex will move once the email-first MVP forces the DNS cutover. End users on v1.0.0/v1.0.1 should reinstall to pick up the corrected URL.
+
 ## [1.0.1] - 2026-05-18
 
 ### Changed
