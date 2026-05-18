@@ -25,12 +25,12 @@ Once installed, say **"set me up"** to run `canoa-onboard` — it'll connect you
 
 ## What you'll need to connect
 
-Canoa ships as a single remote connector at `https://canoa.supply/api/mcp`. Installing the plugin registers the connector; the connector itself walks you through:
+Canoa ships as a single remote MCP connector. Installing the plugin registers it; the connector then walks you through:
 
 - **Google account** — for the master schedule sheet
 - **A master schedule sheet** — pick one in Drive, or let Canoa start a fresh one from the v1.2 template
 
-Nothing else to install or configure. The catalog, the parser, the persona, and the audit queue all run server-side at canoa.supply.
+Nothing else to install or configure. The catalog, the parser, the persona, and the audit queue all run server-side on the Canoa backend. The exact MCP endpoint is in `.mcp.json` and may move as DNS evolves; you don't need to touch it.
 
 ## How it works
 
@@ -54,7 +54,7 @@ You don't need to memorize anything. Every workflow pauses before it writes to y
 | `/canoa-audit-row` | Re-verify one row in your schedule against the live vendor source |
 | `/canoa-source-room` | Brief → cards → spec → add to schedule, in one approval-gated flow |
 | `/canoa-audit-schedule` | Bulk verify every row, run as a server-side job |
-| `/canoa-build-spec-book` | Turn the schedule into a branded spec book (PDF / Sheets / Markdown) |
+| `/canoa-build-spec-book` | Turn the schedule into a branded spec book (PDF, HTML, Google Sheets, or Markdown) |
 | `/canoa-weekly-check` | Monday brief: stale rows, price drift, lead-time changes |
 
 ## Conventions Canoa follows
