@@ -1,8 +1,10 @@
-# Canoa
+# Canoa — Claude plugin
 
 A Claude Code plugin for FF&E specifications. Parse vendor URLs and dealer quotes into a verified catalog, walk configurable products to a locked SKU, keep your master schedule in sync, and produce client-ready spec books — every fact backed by a manufacturer-cited source.
 
 Built for [Claude Cowork](https://claude.com/product/cowork). Also works in [Claude Code](https://claude.com/product/claude-code).
+
+> **This is one of three Canoa surfaces.** Canoa is primarily email-driven — each project gets its own agent at `<first>.<project>@agent.canoa.supply` that you CC on vendor threads or share Drive folders with. This plugin is the **secondary** surface for studios that already live inside Claude; an API surface (tertiary, for studios building their own tools) is in planning. All three sit on the same underlying studio knowledge. See [canoa.supply](https://canoa.supply) for the email surface + signup, or read [the PRD](https://github.com/AlpacaLabsLLC/canoa-site/blob/main/docs/canoa-prd.md) for the full three-surface architecture.
 
 ## The Problem
 
