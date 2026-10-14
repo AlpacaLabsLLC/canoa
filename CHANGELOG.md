@@ -76,7 +76,7 @@ This plugin assumes `canoa.supply/api/mcp` exposes the granular tool surface lis
 
 ### Added
 
-- `LICENSE` (MIT, copyright 2026 Alpaca Design Lab LLC).
+- `LICENSE` (MIT, copyright 2026 Alpaca Labs, LLC).
 - `agents/canoa.md` (hoisted from `agent/canoa.md`) and `agents/README.md` documenting the FF&E specialist persona that runs server-side via `canoa_chat`.
 - `.gitignore` covers `**/node_modules/`, `.canoa/`, `.wrangler/`, and `.DS_Store`.
 
