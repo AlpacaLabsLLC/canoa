@@ -4,7 +4,7 @@
   "description": "AI specifications manager for FF&E. Parse vendor URLs and dealer quotes into a verified catalog, spec configurable products like the Aeron, keep your master schedule in sync, and build clean spec books — every step backed by manufacturer-cited line cards.",
   "author": {
     "name": "ALPA",
-    "email": "f@alpacalabs.co"
+    "email": "hello@alpa.llc"
   },
   "homepage": "https://canoa.supply",
   "repository": "https://github.com/AlpacaLabsLLC/canoa",
